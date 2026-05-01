@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: voicestep-backend
+    runtime: docker
+    plan: free
+    rootDir: backend
+    docker:
+      dockerfile: Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        scope: build,run
+      - key: GEMINI_API_KEY
+        scope: build,run
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash-lite
+        scope: build,run
+      - key: GROQ_API_KEY
+        scope: build,run
+      - key: GROQ_MODEL
+        value: whisper-large-v3-turbo
+        scope: build,run
+      - key: FIREBASE_PROJECT_ID
+        scope: build,run
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        scope: build,run
+      - key: STT_ENGINE
+        value: groq_whisper
+        scope: build,run
+      - key: MAX_CONVERSATION_TURNS
+        value: 5
+        scope: build,run
+      - key: DEV_AUTH_BYPASS
+        value: "false"
+        scope: build,run
+      - key: BACKEND_CORS_ORIGINS
+        value: https://voicestep.vercel.app
+        scope: build,run
+      - key: BACKEND_URL
+        value: https://voicestep-backend.render.com
+        scope: build,run
+      - key: FRONTEND_URL
+        value: https://voicestep.vercel.app
+        scope: build,run
+      - key: APP_ENV
+        value: production
+        scope: build,run
