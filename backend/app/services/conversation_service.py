@@ -14,12 +14,12 @@ from app.services import gemini_service, report_service
 logger = logging.getLogger(__name__)
 
 
-def create_session(db: Session, user: User, scenario_type: str) -> ConversationSession:
-    session = ConversationSession(user_id=user.id, scenario_type=scenario_type, status="active", turn_count=0)
+def create_session(db: Session, user: User, scenario_type: str, job: Optional[str] = None) -> ConversationSession:
+    session = ConversationSession(user_id=user.id, scenario_type=scenario_type, job=job, status="active", turn_count=0)
     db.add(session)
     db.flush()
 
-    first_question = gemini_service.get_first_question(scenario_type)
+    first_question = gemini_service.get_first_question(scenario_type, job)
     if not first_question:
         first_question = "안녕하세요. 먼저 자기소개를 간단히 해주시겠어요?"
 
@@ -127,6 +127,7 @@ def submit_user_reply(
     # Generate next AI question
     next_q = gemini_service.generate_next_question(
         scenario_type=session.scenario_type,
+        job=session.job,
         recent_messages=history_dicts[-6:],
         user_answer=user_msg.content,
     )

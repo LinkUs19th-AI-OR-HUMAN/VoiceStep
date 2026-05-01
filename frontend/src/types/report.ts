@@ -3,6 +3,7 @@ import type { SessionMessage, ScenarioType } from "./session";
 export type ReportListItem = {
   id: string;
   scenario_type: ScenarioType;
+  job?: string | null;
   title?: string | null;
   summary?: string | null;
   total_score?: number | null;
@@ -12,6 +13,7 @@ export type ReportListItem = {
 export type ReportDetail = {
   id: string;
   scenario_type: ScenarioType;
+  job?: string | null;
   title?: string | null;
   summary?: string | null;
   total_score?: number | null;

@@ -35,6 +35,7 @@ def create_report_for_session(
         session_id=session.id,
         user_id=user.id,
         scenario_type=session.scenario_type,
+        job=session.job,
         title=title,
         summary=summary,
         total_score=total_score,

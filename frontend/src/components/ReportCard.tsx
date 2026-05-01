@@ -20,8 +20,11 @@ export default function ReportCard({ report }: Props) {
       className="block rounded-lg border bg-white p-4 shadow-sm transition hover:border-brand-500 hover:shadow"
     >
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-sm text-slate-500">{date}</div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 text-sm text-slate-500">
+            <span>{date}</span>
+            {report.job && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">{report.job}</span>}
+          </div>
           <h3 className="mt-1 text-base font-semibold text-slate-900">
             {SCENARIO_LABEL[report.scenario_type] || report.scenario_type}
           </h3>

@@ -27,7 +27,7 @@ def create_session(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> CreateSessionResponse:
-    session = conversation_service.create_session(db, user, body.scenario_type)
+    session = conversation_service.create_session(db, user, body.scenario_type, body.job)
     messages = conversation_service.list_messages(db, session.id)
     first_ai = next((m for m in messages if m.role == "ai"), None)
     return CreateSessionResponse(

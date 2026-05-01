@@ -40,3 +40,13 @@ coverage/
 .tmp/
 tmp/
 uploads/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+local.db
+
+# Development
+main.py
+.claude/

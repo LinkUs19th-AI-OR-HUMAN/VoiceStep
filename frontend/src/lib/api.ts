@@ -43,12 +43,12 @@ export async function syncUser(payload: { email?: string | null; display_name?: 
   return handle<{ id: string; firebase_uid: string; email?: string; display_name?: string }>(res);
 }
 
-export async function createSession(scenarioType: ScenarioType): Promise<CreateSessionResponse> {
+export async function createSession(scenarioType: ScenarioType, job?: string): Promise<CreateSessionResponse> {
   const headers = await authHeaders();
   const res = await fetch(`${BASE_URL}/api/sessions`, {
     method: "POST",
     headers: { ...headers, "Content-Type": "application/json" },
-    body: JSON.stringify({ scenario_type: scenarioType }),
+    body: JSON.stringify({ scenario_type: scenarioType, job: job || null }),
   });
   return handle<CreateSessionResponse>(res);
 }

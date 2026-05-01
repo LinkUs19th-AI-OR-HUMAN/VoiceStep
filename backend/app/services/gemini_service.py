@@ -52,21 +52,26 @@ def _get_model():
         logger.warning("GEMINI_API_KEY not configured; Gemini calls will use fallbacks.")
         return None
     try:
-        import google.generativeai as genai
+        from google.genai import types
+        from google.genai.client import Client
 
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        return genai.GenerativeModel(settings.GEMINI_MODEL)
+        client = Client(api_key=settings.GEMINI_API_KEY)
+        return client
     except Exception as exc:  # noqa: BLE001
         logger.exception("Failed to load Gemini model: %s", exc)
         return None
 
 
 def _generate_text(prompt: str, max_chars: int = 2000) -> Optional[str]:
-    model = _get_model()
-    if model is None:
+    client = _get_model()
+    if client is None:
         return None
     try:
-        response = model.generate_content(prompt)
+        settings = get_settings()
+        response = client.models.generate_content(
+            model=settings.GEMINI_MODEL,
+            contents=prompt,
+        )
         text = (response.text or "").strip()
         return text[:max_chars] if text else None
     except Exception as exc:  # noqa: BLE001
@@ -74,7 +79,7 @@ def _generate_text(prompt: str, max_chars: int = 2000) -> Optional[str]:
         return None
 
 
-def get_first_question(scenario_type: str) -> str:
+def get_first_question(scenario_type: str, job: Optional[str] = None) -> str:
     prompt = load_conversation_prompt(scenario_type)
     return (prompt.get("first_question") or "").strip()
 
@@ -83,6 +88,7 @@ def generate_next_question(
     scenario_type: str,
     recent_messages: list[dict[str, str]],
     user_answer: str,
+    job: Optional[str] = None,
 ) -> str:
     prompt = load_conversation_prompt(scenario_type)
     system = prompt.get("system", "")
@@ -91,10 +97,6 @@ def generate_next_question(
     fallback_q = (prompt.get("fallback_question") or "방금 답변에서 한 가지를 더 자세히 말해주시겠어요?").strip()
 
     rules_block = "\n".join(f"- {r}" for r in rules)
-    few_shots_block = "\n\n".join(
-        f"[예시 답변]\n{(fs.get('user_answer') or '').strip()}\n[다음 질문]\n{(fs.get('next_question') or '').strip()}"
-        for fs in few_shots[:2]
-    )
 
     history_block_lines = []
     for m in recent_messages[-6:]:
@@ -102,8 +104,21 @@ def generate_next_question(
         history_block_lines.append(f"{role}: {m.get('content', '').strip()}")
     history_block = "\n".join(history_block_lines)
 
+    # Filter few-shots by job if available
+    filtered_few_shots = few_shots
+    if job:
+        filtered_few_shots = [fs for fs in few_shots if fs.get("job") == job or not fs.get("job")]
+
+    few_shots_block = "\n\n".join(
+        f"[예시 답변]\n{(fs.get('user_answer') or '').strip()}\n[다음 질문]\n{(fs.get('next_question') or '').strip()}"
+        for fs in filtered_few_shots[:2]
+    )
+
+    job_block = f"[지원 직무]\n{job}\n\n" if job else ""
+
     final_prompt = (
         f"{system.strip()}\n\n"
+        f"{job_block}"
         f"[규칙]\n{rules_block}\n\n"
         f"[예시]\n{few_shots_block}\n\n"
         f"[최근 대화]\n{history_block}\n\n"

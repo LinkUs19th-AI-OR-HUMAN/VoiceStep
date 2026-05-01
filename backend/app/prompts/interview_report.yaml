@@ -57,3 +57,41 @@ few_shots:
         "recommendations": ["답변마다 상황-행동-결과 구조를 사용해보세요."],
         "next_practice": "지원동기와 프로젝트 경험을 구체적으로 설명하는 연습을 추천합니다."
       }
+  - conversation_summary: |
+      반도체 직무 지원자가 설계 경험과 문제 해결 과정을 명확하고 자신감 있게 설명했다.
+    report: |
+      {
+        "title": "면접 상황 연습 결과",
+        "total_score": 81,
+        "summary": "기술적 경험을 구조적으로 잘 전달했으며, 논리적 사고가 드러났습니다.",
+        "scores": {
+          "clarity": 17,
+          "specificity": 18,
+          "confidence": 17,
+          "relevance": 17,
+          "improvement_potential": 16
+        },
+        "strengths": ["기술 경험을 체계적으로 설명했습니다.", "문제 해결 과정에서의 판단 기준이 명확했습니다."],
+        "weaknesses": ["팀과의 협업 측면을 조금 더 강조할 수 있었습니다."],
+        "recommendations": ["개인 성과뿐 아니라 팀에 미친 영향도 함께 설명해보세요."],
+        "next_practice": "기술 면접에서 질문받을 수 있는 깊이 있는 주제들을 미리 준비해보세요."
+      }
+  - conversation_summary: |
+      영업 직무 지원자가 고객 관계 관리의 중요성을 인식하고 있었으나 실제 성과 수치가 불명확했다.
+    report: |
+      {
+        "title": "면접 상황 연습 결과",
+        "total_score": 68,
+        "summary": "직무에 대한 이해는 있으나 정량적 성과를 구체화할 필요가 있습니다.",
+        "scores": {
+          "clarity": 14,
+          "specificity": 11,
+          "confidence": 15,
+          "relevance": 16,
+          "improvement_potential": 14
+        },
+        "strengths": ["고객 중심의 마인드셋이 드러났습니다."],
+        "weaknesses": ["성과를 수치와 함께 설명하지 않아 임팩트가 약했습니다."],
+        "recommendations": ["가능하면 판매량, 고객만족도, 재계약율 등 구체적 지표를 포함시키세요."],
+        "next_practice": "지난 성과를 분석하여 수치로 표현할 수 있는 방식을 준비해보세요."
+      }

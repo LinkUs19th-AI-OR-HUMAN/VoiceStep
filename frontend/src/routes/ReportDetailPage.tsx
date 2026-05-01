@@ -68,9 +68,17 @@ export default function ReportDetailPage() {
 
       <div className="rounded-2xl border bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-slate-400">
-              {SCENARIO_LABEL[report.scenario_type] || report.scenario_type} · {created}
+          <div className="flex-1">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-400">
+              <span>{SCENARIO_LABEL[report.scenario_type] || report.scenario_type}</span>
+              <span>·</span>
+              <span>{created}</span>
+              {report.job && (
+                <>
+                  <span>·</span>
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-slate-700 normal-case">{report.job}</span>
+                </>
+              )}
             </div>
             <h1 className="mt-1 text-2xl font-bold">
               {report.title || j.title || "결과 보고서"}

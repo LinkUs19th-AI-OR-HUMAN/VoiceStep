@@ -27,6 +27,7 @@ class UserOut(BaseModel):
 
 class CreateSessionRequest(BaseModel):
     scenario_type: ScenarioType
+    job: Optional[str] = None
 
 
 class MessageOut(BaseModel):
@@ -86,6 +87,7 @@ class ReportListItem(BaseModel):
 
     id: uuid.UUID
     scenario_type: ScenarioType
+    job: Optional[str] = None
     title: Optional[str] = None
     summary: Optional[str] = None
     total_score: Optional[int] = None
@@ -95,6 +97,7 @@ class ReportListItem(BaseModel):
 class ReportDetail(BaseModel):
     id: uuid.UUID
     scenario_type: ScenarioType
+    job: Optional[str] = None
     title: Optional[str] = None
     summary: Optional[str] = None
     total_score: Optional[int] = None

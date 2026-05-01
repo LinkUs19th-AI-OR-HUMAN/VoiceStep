@@ -6,6 +6,7 @@ export type CreateSessionResponse = {
   scenario_type: ScenarioType;
   status: SessionStatus;
   first_ai_message: string;
+  job?: string | null;
 };
 
 export type SessionDetail = {
