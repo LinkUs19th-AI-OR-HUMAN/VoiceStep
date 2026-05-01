@@ -1,0 +1,65 @@
+# Backend requirements for AI Conversation Training MVP
+# Recommended Python: 3.11.x
+# STT: Groq API whisper-large-v3-turbo
+#
+# Install:
+#   pip install -r requirements.txt
+#
+# Do NOT install local Whisper packages for this setup:
+# - faster-whisper
+# - openai-whisper
+# - torch
+# - transformers
+
+# =========================
+# FastAPI server
+# =========================
+fastapi==0.136.1
+uvicorn[standard]==0.46.0
+python-multipart>=0.0.20,<1.0.0
+
+# =========================
+# Settings / environment
+# =========================
+pydantic>=2.10.0,<3.0.0
+pydantic-settings>=2.6.0,<3.0.0
+python-dotenv>=1.0.1,<2.0.0
+
+# =========================
+# Database
+# =========================
+SQLAlchemy>=2.0.36,<3.0.0
+alembic>=1.15.0,<2.0.0
+psycopg2-binary>=2.9.10,<3.0.0
+
+# =========================
+# Firebase Admin SDK
+# =========================
+firebase-admin==7.4.0
+
+# =========================
+# Gemini API for LLM
+# =========================
+google-genai==1.74.0
+
+# =========================
+# Groq API for STT
+# model: whisper-large-v3-turbo
+# =========================
+groq==1.2.0
+
+# =========================
+# Prompt templates
+# =========================
+PyYAML>=6.0.2,<7.0.0
+
+# =========================
+# HTTP / utilities
+# =========================
+httpx>=0.28.0,<1.0.0
+email-validator>=2.2.0,<3.0.0
+
+# =========================
+# Optional local testing
+# =========================
+pytest>=8.3.0,<9.0.0
