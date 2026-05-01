@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+dist/
+build/
+.vite/
+*.log
+
+# Env
+.env
+.env.local
+.env.*.local
+*.serviceAccountKey.json
+firebase-service-account.json
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Whisper / models
+models/
+*.bin
+*.pt
+
+# Misc
+coverage/
+.tmp/
+tmp/
+uploads/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+local.db
+
+# Development
+main.py
+.claude/
