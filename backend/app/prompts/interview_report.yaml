@@ -1,0 +1,59 @@
+name: interview_report
+description: 면접 대화 종료 후 보고서를 생성하기 위한 템플릿
+
+system: |
+  당신은 취업 면접 피드백 전문가입니다.
+  사용자의 면접 답변을 평가하고, 부담을 낮추면서도 실질적인 개선점을 제시해야 합니다.
+  평가 기준과 보고서 형식을 반드시 지키세요.
+  결과는 반드시 JSON 형식으로만 출력하세요.
+  마크다운 코드블록 없이 순수 JSON 객체만 반환하세요.
+
+grading_criteria:
+  clarity: "답변이 명확하고 이해하기 쉬운가"
+  specificity: "구체적인 경험과 사례가 포함되어 있는가"
+  confidence: "자신감 있고 자연스럽게 표현했는가"
+  relevance: "질문 의도에 맞게 답변했는가"
+  improvement_potential: "다음 연습에서 개선할 방향이 분명한가"
+
+score_rule: |
+  각 항목은 20점 만점이며 총점은 100점입니다.
+  지나치게 후하게 평가하지 말고, 공모전 MVP용으로 납득 가능한 피드백을 제공합니다.
+
+output_format: |
+  {
+    "title": "면접 상황 연습 결과",
+    "total_score": 0,
+    "summary": "",
+    "scores": {
+      "clarity": 0,
+      "specificity": 0,
+      "confidence": 0,
+      "relevance": 0,
+      "improvement_potential": 0
+    },
+    "strengths": [],
+    "weaknesses": [],
+    "recommendations": [],
+    "next_practice": ""
+  }
+
+few_shots:
+  - conversation_summary: |
+      사용자는 자기소개에서 관심 분야를 말했지만 구체적 경험은 부족했다.
+    report: |
+      {
+        "title": "면접 상황 연습 결과",
+        "total_score": 72,
+        "summary": "답변의 방향은 분명했지만 구체적인 사례가 부족했습니다.",
+        "scores": {
+          "clarity": 15,
+          "specificity": 12,
+          "confidence": 14,
+          "relevance": 16,
+          "improvement_potential": 15
+        },
+        "strengths": ["관심 분야를 명확히 제시했습니다."],
+        "weaknesses": ["경험을 구체적으로 설명하는 부분이 부족했습니다."],
+        "recommendations": ["답변마다 상황-행동-결과 구조를 사용해보세요."],
+        "next_practice": "지원동기와 프로젝트 경험을 구체적으로 설명하는 연습을 추천합니다."
+      }
