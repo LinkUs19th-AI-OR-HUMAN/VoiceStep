@@ -51,8 +51,8 @@ def root() -> dict:
     return {"service": settings.APP_NAME, "docs": "/docs"}
 
 
-app.include_router(auth_router.router, prefix="/api")
-app.include_router(sessions_router.router, prefix="/api")
-app.include_router(stt_router.router, prefix="/api")
-app.include_router(reports_router.router, prefix="/api")
-app.include_router(llm_router.router, prefix="/api")
+app.include_router(auth_router.router)
+app.include_router(sessions_router.router)
+app.include_router(stt_router.router)
+app.include_router(reports_router.router)
+app.include_router(llm_router.router)
