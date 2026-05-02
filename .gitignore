@@ -23,6 +23,7 @@ build/
 .env.*.local
 *.serviceAccountKey.json
 firebase-service-account.json
+RENDER_ENV.txt
 
 # OS / IDE
 .DS_Store
