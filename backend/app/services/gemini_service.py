@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import random
 import re
 from typing import Any, Optional
 
@@ -11,6 +12,50 @@ from app.core.config import get_settings
 from app.services.prompt_loader import load_conversation_prompt, load_report_prompt
 
 logger = logging.getLogger(__name__)
+
+SCENARIO_TOPICS = {
+    "interview": [
+        "자신의 강점과 약점",
+        "이전 프로젝트에서의 성과",
+        "팀 협업 경험",
+        "문제 해결 능력",
+        "경력 목표와 비전",
+    ],
+    "work": [
+        "프로젝트 진행 상황",
+        "문제 해결 방안",
+        "팀원들과의 의견 차이",
+        "마감일 조정 요청",
+        "새로운 아이디어 제안",
+    ],
+    "presentation": [
+        "AI 기술의 미래",
+        "디지털 마케팅 전략",
+        "기업 혁신 사례",
+        "데이터 분석 활용",
+        "고객 경험 개선",
+    ],
+    "meeting": [
+        "분기별 성과 평가",
+        "예산 배분 논의",
+        "전략적 방향 설정",
+        "부서 간 협력 방안",
+        "리스크 관리 방안",
+    ],
+    "customer": [
+        "상품 반품 요청",
+        "배송 지연 민원",
+        "요금 청구 문제",
+        "서비스 품질 개선 의견",
+        "특별 요청 사항",
+    ],
+}
+
+
+def get_random_topic(scenario_type: str) -> str:
+    """Get a random topic for the given scenario type."""
+    topics = SCENARIO_TOPICS.get(scenario_type, [])
+    return random.choice(topics) if topics else "주제"
 
 _FALLBACK_REPORT_INTERVIEW = {
     "title": "면접 상황 연습 결과",
@@ -132,10 +177,15 @@ def _generate_text(prompt: str, max_chars: int = 2000) -> Optional[str]:
 def get_first_question(scenario_type: str, job: Optional[str] = None) -> str:
     prompt = load_conversation_prompt(scenario_type)
     first_q = (prompt.get("first_question") or "").strip()
-    if job and "{topic}" in first_q:
-        first_q = first_q.replace("{topic}", job)
-    elif job and "{job}" in first_q:
-        first_q = first_q.replace("{job}", job)
+
+    # Use provided job/topic or select a random one
+    topic = job or get_random_topic(scenario_type)
+
+    if "{topic}" in first_q:
+        first_q = first_q.replace("{topic}", topic)
+    elif "{job}" in first_q:
+        first_q = first_q.replace("{job}", topic)
+
     return first_q
 
 
