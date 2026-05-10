@@ -13,7 +13,7 @@
 
 **목표:** 면접, 업무, 발표, 회의, 고객응대 등 실제 상황을 음성으로 연습하고 AI 보고서를 받아보는 서비스
 
-**개발 기간:** 2026년 초~중반 (약 4개월)
+**개발 기간:** 2026년 ４～５월(약 ２주　반)
 
 ---
 
@@ -319,6 +319,328 @@ git push origin main:main  # LinkUs19th-AI-OR-HUMAN/VoiceStep → Render
 5. **프롬프트 엔지니어링:** Few-shot learning, 한글 전용 지시사항의 중요성
 6. **타입 안전성:** TypeScript를 통한 오류 사전 방지
 7. **사용자 중심 설계:** 피드백 기반 반복 개발의 중요성
+
+---
+
+## 데이터 전처리 및 활용 방안
+
+### 1. STT(음성-텍스트) 전처리
+
+**목표:** 음성 인식 오류 수정 및 자연스러운 텍스트 변환
+
+**파이프라인:**
+```
+사용자 음성 입력 
+  → Whisper API 음성 인식 
+  → STT 결과 텍스트 
+  → LLM 기반 오류 수정 (correction_service.py) 
+  → 정제된 텍스트 
+  → AI 평가 입력
+```
+
+**구현:**
+```python
+# correction_service.py
+def correct_stt(stt_text: str, recent_context: list[dict]) -> str:
+    """STT 결과의 문법 오류, 띄어쓰기 오류 자동 수정"""
+    return gemini_service.correct_stt_text(stt_text, recent_context)
+```
+
+**활용:**
+- Whisper가 인식한 텍스트의 오류 자동 수정
+- 문맥(recent_context)을 고려한 정교한 수정
+- 사용자의 실제 의도 파악 증대
+
+**장점:**
+- 사용자가 말한 내용의 정확한 해석
+- AI 평가의 신뢰도 향상
+- 음성 인식 오류로 인한 불공정한 평가 방지
+
+---
+
+### 2. 프롬프트 템플릿 전처리
+
+**목표:** 시나리오별 커스터마이징된 지시사항 효율적 관리
+
+**구조:**
+```
+YAML 템플릿 파일 
+  → 프롬프트 로더 (prompt_loader.py) 
+  → 변수 치환 ({job}, {topic}) 
+  → LLM 입력용 최종 프롬프트
+```
+
+**YAML 기반 관리:**
+```yaml
+# work_conversation.yaml
+system: |
+  당신은 업무 의사소통 코치입니다...
+  
+rules:
+  - AI가 항상 먼저 질문한다
+  - 한 번에 하나의 업무 상황만 제시한다
+  
+first_question: |
+  안녕하세요. 오늘은 '{topic}'이라는 주제의 {job} 연습을 시작하겠습니다...
+  
+few_shots:
+  - user_answer: 마감일을 좀 더 연장해주실 수 있을까요?
+    next_question: 그렇다면 구체적으로 몇 주가 더 필요하신지 말씀해주시겠어요?
+```
+
+**변수 치환:**
+```python
+# gemini_service.py
+first_q = template.get("first_question")
+first_q = first_q.replace("{topic}", random_topic)  # "자신의 강점과 약점"
+first_q = first_q.replace("{job}", user_job)        # "면접"
+# 결과: "오늘은 '자신의 강점과 약점'이라는 주제의 면접 연습을 시작하겠습니다..."
+```
+
+**활용:**
+- 코드 변경 없이 프롬프트 업데이트 (YAML 수정만으로 충분)
+- 버전 관리 용이 (Git으로 변경 이력 추적)
+- A/B 테스트 간편 (다양한 템플릿 비교 가능)
+
+**장점:**
+- 신속한 프롬프트 최적화
+- 시나리오별 일관된 품질 관리
+- 유지보수 효율성 향상
+
+---
+
+### 3. 대화 데이터 전처리 및 평가
+
+**목표:** 사용자의 대화 품질을 객관적이고 공정하게 평가
+
+**평가 항목별 전처리:**
+
+#### 3.1 시나리오별 평가 기준
+
+| 시나리오 | 평가 항목 | 설명 |
+|---------|---------|------|
+| **interview** | Clarity | 명확한 답변 |
+| | Specificity | 구체적인 사례 |
+| | Confidence | 자신감 있는 표현 |
+| | Relevance | 질문과의 연관성 |
+| | Improvement Potential | 개선 가능성 |
+| **work** | Clarity | 명확한 의사전달 |
+| | Politeness | 적절한 존댓말과 태도 |
+| | Problem Solving | 문제 해결 능력 |
+| | Context Awareness | 상황 이해도 |
+| | Actionability | 실행 가능성 |
+| **presentation** | Clarity | 명확한 설명 |
+| | Structure | 논리적 구조 |
+| | Engagement | 청중 흥미 유발 |
+| | Confidence | 발표 자신감 |
+| | Q&A Handling | Q&A 대응력 |
+
+#### 3.2 평가 데이터 집계
+
+**입력 데이터:**
+```python
+{
+  "session_id": "uuid",
+  "scenario_type": "interview",
+  "user_answer": "저는 데이터 분석 능력이 강점입니다...",
+  "ai_evaluation": {
+    "clarity": 18,
+    "specificity": 16,
+    "confidence": 17,
+    "relevance": 19,
+    "improvement_potential": 15
+  },
+  "total_score": 85,
+  "created_at": "2026-05-10T10:30:00"
+}
+```
+
+**처리 과정:**
+1. 각 세션의 평가 점수 저장
+2. 날짜별 + 시나리오별로 그룹화
+3. 같은 날짜+시나리오의 점수들을 평균 계산
+4. 누적 통계 생성 (평균, 추세 등)
+
+**예시:**
+```
+2026-05-10 면접 3회:
+  - 회차 1: 75점
+  - 회차 2: 82점
+  - 회차 3: 88점
+  → 일일 평균: 81.67점
+
+누적 데이터:
+  - 전체 연습 횟수: 15회
+  - 면접 평균: 78.5점
+  - 업무 평균: 72.3점
+  - 발표 평균: 65.2점
+  - 회의 평균: 70.1점
+  - 고객응대 평균: 68.9점
+```
+
+---
+
+### 4. 사용자 피드백 데이터 전처리 (위로 메시지)
+
+**목표:** 사용자 격려 및 심리적 지원 데이터 효율적 관리
+
+**파이프라인:**
+```
+사전 제작 위로 메시지 
+  → JSON 파일 (data/comfort_messages.json) 
+  → 애플리케이션 시작 시 캐싱 
+  → 세션 종료 시 랜덤 선택 반환
+```
+
+**구현:**
+```python
+# comfort_service.py
+_COMFORT_MESSAGES: list[str] = []  # 전역 캐시
+
+def _load_messages_from_json() -> list[str]:
+    """전처리된 JSON 파일에서 위로 메시지 로드"""
+    json_path = Path(__file__).parent / "data" / "comfort_messages.json"
+    with open(json_path, encoding="utf-8") as f:
+        return json.load(f)  # 사전 로드 (성능 최적화)
+
+def get_random_message() -> str:
+    """세션 종료 시 랜덤 위로 메시지 반환"""
+    _ensure_loaded()
+    return random.choice(_COMFORT_MESSAGES)
+```
+
+**데이터 구조:**
+```json
+[
+  "잘 하고 있어요. 연습이 쌓이면 반드시 나아집니다.",
+  "처음부터 완벽한 사람은 없습니다. 한 번 더 시도해보세요.",
+  "당신의 노력이 분명히 도움이 될 거예요.",
+  "어려운 상황이지만 차근차근 진행해보세요.",
+  "오늘도 좋은 연습이 되었어요. 계속 응원합니다."
+]
+```
+
+**특징:**
+- Fallback 메시지로 안정성 보장 (JSON 로드 실패 시)
+- 애플리케이션 시작 시 한 번만 로드 (성능)
+- 확장 용이 (JSON만 추가하면 됨)
+
+---
+
+### 5. 대시보드 시각화 데이터 전처리
+
+**목표:** 원본 데이터를 차트 표시 형식으로 변환
+
+**Wide Format 변환:**
+```python
+# ProgressPage.tsx
+const buildScoreTrendData = (history: Record[]): ChartData[] => {
+  // 1단계: 날짜 + 시나리오별 그룹화
+  const grouped = {
+    "2026-05-10": {
+      "interview": [64, 68],
+      "work": [70]
+    },
+    "2026-05-11": {
+      "interview": [72],
+      "presentation": [65]
+    }
+  }
+  
+  // 2단계: 평균 계산 및 wide format 변환
+  return [
+    {
+      date: "2026-05-10",
+      interview: 66,      // (64 + 68) / 2
+      work: 70,           // 70
+      presentation: null, // 데이터 없음
+      meeting: null,
+      customer: null
+    },
+    {
+      date: "2026-05-11",
+      interview: 72,
+      work: null,
+      presentation: 65,
+      meeting: null,
+      customer: null
+    }
+  ]
+}
+```
+
+**변환 과정의 장점:**
+- 같은 날짜에 여러 기록 → 평균으로 통합
+- null 값으로 데이터 부재 명확히 표시 (0점과 구분)
+- Recharts의 wide format 요구사항 만족
+- X축 중복 제거 (날짜 단위 표시)
+- 각 시나리오별 독립적 라인 렌더링 가능
+
+**시각화 결과:**
+- X축: 날짜 (중복 없음)
+- Y축: 0~100점 범위
+- 라인: 시나리오별 5개 색상 구분
+- 데이터 부재: 라인에서 제외 (connectNulls=false)
+
+---
+
+### 6. 데이터 보안 및 개인정보 보호
+
+**전처리 시 고려사항:**
+
+1. **민감한 정보 제거:**
+   - 사용자 이름, 특정 회사명 등 개인정보 마스킹
+   - API 키, 토큰은 환경 변수로 관리
+
+2. **데이터 암호화:**
+   - 전송 중: HTTPS 사용
+   - 저장 시: 데이터베이스 암호화 고려
+
+3. **접근 제어:**
+   - Firebase Authentication으로 사용자 인증
+   - JWT 토큰으로 API 엔드포인트 보호
+   - 자신의 데이터만 조회 가능하도록 필터링
+
+---
+
+### 7. 데이터 활용 사례
+
+**사례 1: 개인 성장 추적**
+- 날짜별 점수 추이 그래프
+- 시나리오별 강점/약점 파악
+- 목표 대비 진행 상황 분석
+
+**사례 2: AI 모델 개선**
+- 사용자 응답 데이터 수집
+- 평가 정확도 검증
+- 프롬프트 템플릿 최적화
+
+**사례 3: 통계 분석**
+- 시나리오별 평균 점수
+- 시간대별 연습 활동
+- 사용자 이탈률 분석
+
+**사례 4: 개인화 추천**
+- 약한 시나리오 우선 추천
+- 사용자 진도에 맞는 난이도 조정
+- 맞춤형 피드백 제공
+
+---
+
+**데이터 전처리 아키텍처 요약:**
+```
+Raw Data (사용자 음성, 대화 기록)
+    ↓
+STT 처리 → 텍스트 정제 (오류 수정)
+    ↓
+AI 평가 → 점수 계산 → 리포트 생성
+    ↓
+데이터 집계 (날짜별, 시나리오별)
+    ↓
+Wide Format 변환 → 시각화
+    ↓
+사용자 대시보드 (ProgressPage)
+```
 
 ---
 
