@@ -178,13 +178,17 @@ def get_first_question(scenario_type: str, job: Optional[str] = None) -> str:
     prompt = load_conversation_prompt(scenario_type)
     first_q = (prompt.get("first_question") or "").strip()
 
-    # Always select a random topic regardless of job parameter
+    # job: Frontend에서 선택한 구체적 시나리오 (예: "사업 계획 발표")
+    # topic: Backend에서 생성한 실제 주제 (예: "AI의 미래")
     topic = get_random_topic(scenario_type)
 
+    # {job}을 Frontend job으로 대체
+    if "{job}" in first_q and job:
+        first_q = first_q.replace("{job}", job)
+
+    # {topic}을 Backend topic으로 대체
     if "{topic}" in first_q:
         first_q = first_q.replace("{topic}", topic)
-    elif "{job}" in first_q:
-        first_q = first_q.replace("{job}", topic)
 
     return first_q
 
