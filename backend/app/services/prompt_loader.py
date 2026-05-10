@@ -19,17 +19,9 @@ def _load_yaml(filename: str) -> dict[str, Any]:
 
 @lru_cache(maxsize=8)
 def load_conversation_prompt(scenario_type: str) -> dict[str, Any]:
-    if scenario_type == "interview":
-        return _load_yaml("interview_conversation.yaml")
-    if scenario_type == "work":
-        return _load_yaml("work_conversation.yaml")
-    raise ValueError(f"Unknown scenario_type: {scenario_type}")
+    return _load_yaml(f"{scenario_type}_conversation.yaml")
 
 
 @lru_cache(maxsize=8)
 def load_report_prompt(scenario_type: str) -> dict[str, Any]:
-    if scenario_type == "interview":
-        return _load_yaml("interview_report.yaml")
-    if scenario_type == "work":
-        return _load_yaml("work_report.yaml")
-    raise ValueError(f"Unknown scenario_type: {scenario_type}")
+    return _load_yaml(f"{scenario_type}_report.yaml")
