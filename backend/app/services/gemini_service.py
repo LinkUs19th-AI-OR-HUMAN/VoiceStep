@@ -178,8 +178,8 @@ def get_first_question(scenario_type: str, job: Optional[str] = None) -> str:
     prompt = load_conversation_prompt(scenario_type)
     first_q = (prompt.get("first_question") or "").strip()
 
-    # Use provided job/topic or select a random one
-    topic = job or get_random_topic(scenario_type)
+    # Always select a random topic regardless of job parameter
+    topic = get_random_topic(scenario_type)
 
     if "{topic}" in first_q:
         first_q = first_q.replace("{topic}", topic)
